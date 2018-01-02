@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# speedtest.net > html bash script 
+# formats json output from speedtest-cli into a html file containing a <table/>
+# drop this file into /etc/cron.hourly to perform automated hourly tests
+
+# dependencies: 
+# speedtest-cli for performing speed tests via speedtest.net (https://github.com/sivel/speedtest-cli)
+# jq for command line json parsing (https://stedolan.github.io/jq/)
+
+SPEED_TEST_CMD="/root/speedtest-cli --json --share"
+OUT_FILE=/var/log/speedtest.htm
+
+#perform the speed test
+SPEED_TEST=`$SPEED_TEST_CMD`
+
+#json parse the response via jq
+SERVER_NAME=`echo $SPEED_TEST | jq .server.name`
+PING=`echo $SPEED_TEST | jq .ping`
+DOWN=`echo $SPEED_TEST | jq .download`
+UP=`echo $SPEED_TEST | jq .upload`
+URL=`echo $SPEED_TEST | jq .share`
+
+#scale bps to Mbps using jq floating point arithmetic (no native bash support for floating point arithmetic)
+DOWN=`jq -n $DOWN/1000/1000`
+UP=`jq -n $UP/1000/1000`
+
+#apply rounding
+PING=`printf '%.*f\n' 0 $PING`
+DOWN=`printf '%.*f\n' 2 $DOWN`
+UP=`printf '%.*f\n' 2 $UP`
+
+#strip quotes from strings
+SERVER_NAME=`echo $SERVER_NAME | tr -d '"'`
+URL=`echo $URL | tr -d '"'`
+
+#replace line #1 in the file with the new <tr/> content
+NEW_ROW="<tr><td>$(date '+%d/%m/%Y %T')</td><td>$SERVER_NAME</td><td>$PING msecs</td><td>$DOWN Mbps down&nbsp;/&nbsp;$UP Mbps up</td><td><a href='$URL' target='blank'>$URL</a></td></tr>"
+sed -i "1c${NEW_ROW}" $OUT_FILE
+
+#insert a new line #1
+echo -e "<html><head><title>Speedtest Log</title><style>table{width:100%;border-collapse:collapse;font-family:Verdana,Geneva,Tahoma,sans-serif;}table thead{font-weight:bold;}table td{padding:10px;border:#4e95f4 1px solid}table tr:nth-child(odd){background:#cdd9e8}table tr:nth-child(even){background:#dae5f4}</style></head><body><table><thead><tr><td>Timestamp</td><td>Server</td><td>Ping</td><td>Speed</td><td>Url</td></tr></thead><tbody>\n$(cat $OUT_FILE)" > $OUT_FILE
+
+#output formatted json to stdout
+echo $SPEED_TEST | jq .
