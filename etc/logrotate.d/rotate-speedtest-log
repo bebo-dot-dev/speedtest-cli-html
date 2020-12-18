@@ -1,0 +1,15 @@
+#log rotation configuration for /var/log/speedtest.htm
+#drop this file into /etc/logrotate.d
+/var/log/speedtest.htm {
+	daily
+	copytruncate
+	rotate 5
+	compress
+	delaycompress
+	missingok
+	notifempty
+	nomail
+    postrotate
+        echo $'<html><head><title>Speedtest Log</title><style>html{background:#121212;color:#FFFFFF;}table{width:100%;border-collapse:collapse;font-family:Verdana,Geneva,Tahoma,sans-serif;}table thead{font-weight:bold;}table td{padding:10px;border:#4E95F4 1px solid}</style></head><body><table><tbody><tr><td>No data</td></tr>\n<tbody/></table></body></html>' > /var/log/speedtest.htm
+    endscript
+}

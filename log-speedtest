@@ -39,7 +39,9 @@ NEW_ROW="<tr><td>$(date '+%d/%m/%Y %T')</td><td>$SERVER_NAME</td><td>$PING msecs
 sed -i "1c${NEW_ROW}" $OUT_FILE
 
 #insert a new line #1
-echo -e "<html><head><title>Speedtest Log</title><style>table{width:100%;border-collapse:collapse;font-family:Verdana,Geneva,Tahoma,sans-serif;}table thead{font-weight:bold;}table td{padding:10px;border:#4e95f4 1px solid}table tr:nth-child(odd){background:#cdd9e8}table tr:nth-child(even){background:#dae5f4}</style></head><body><table><thead><tr><td>Timestamp</td><td>Server</td><td>Ping</td><td>Speed</td><td>Url</td></tr></thead><tbody>\n$(cat $OUT_FILE)" > $OUT_FILE
+echo -e "<html><head><title>Speedtest Log</title><style>html{background:#121212;color:#FFFFFF;}table{width:100%;border-collapse:collapse;font-family:Verdana,Geneva,Tahoma,sans-serif;}table thead{font-weight:bold;}table td{padding:10px;border:#4E95F4 1px solid}</style></head><body><table><thead><tr><td>Timestamp</td><td>Server</td><td>Ping</td><td>Speed</td><td>Url</td></tr></thead><tbody>\n$(cat $OUT_FILE)" > $OUT_FILE
+
+echo $NEW_ROW
 
 #output formatted json to stdout
 echo $SPEED_TEST | jq .
