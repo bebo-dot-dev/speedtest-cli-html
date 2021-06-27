@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/opt/bin/bash
 
 # speedtest.net > html bash script 
 # formats json output from speedtest-cli into a html file containing a <table/>
@@ -8,8 +8,8 @@
 # speedtest-cli for performing speed tests via speedtest.net (https://github.com/sivel/speedtest-cli)
 # jq for command line json parsing (https://stedolan.github.io/jq/)
 
-SPEED_TEST_CMD="/root/speedtest.py --json --share"
-OUT_FILE=/var/log/speedtest.htm
+SPEED_TEST_CMD="/root/speedtest-cli --json --share"
+OUT_FILE=/volume1/Web/speedtest.htm
 
 #perform the speed test
 SPEED_TEST=`$SPEED_TEST_CMD`
