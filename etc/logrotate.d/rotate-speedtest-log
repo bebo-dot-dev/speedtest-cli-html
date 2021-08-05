@@ -1,6 +1,7 @@
 #log rotation configuration for /var/log/speedtest.htm
 #drop this file into /etc/logrotate.d
 /var/log/speedtest.htm {
+	su root root
 	daily
 	copytruncate
 	rotate 5
