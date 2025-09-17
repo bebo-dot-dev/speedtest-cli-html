@@ -5,25 +5,30 @@
 # drop this file into /etc/cron.hourly to perform automated hourly tests
 
 # dependencies: 
-# speedtest-cli for performing speed tests via speedtest.net (https://github.com/sivel/speedtest-cli)
+# ookla speedtest cli for performing speed tests via speedtest.net (https://www.speedtest.net/apps/cli)
 # jq for command line json parsing (https://stedolan.github.io/jq/)
 
-SPEED_TEST_CMD="/root/speedtest-cli --json --share"
+SPEED_TEST_CMD="/root/speedtest -f json-pretty" 
 OUT_FILE=/volume1/Web/speedtest.htm
+LOG_FILE=/root/log-speedtest.log
+
+exec 3>&1 4>&2
+trap 'exec 2>&4 1>&3' 0 1 2 3
+exec 1>$LOG_FILE 2>&1
 
 #perform the speed test
 SPEED_TEST=`$SPEED_TEST_CMD`
 
 #json parse the response via jq
-SERVER_NAME=`echo $SPEED_TEST | jq .server.name`
-PING=`echo $SPEED_TEST | jq .ping`
-DOWN=`echo $SPEED_TEST | jq .download`
-UP=`echo $SPEED_TEST | jq .upload`
-URL=`echo $SPEED_TEST | jq .share`
+SERVER_NAME=`echo $SPEED_TEST | /opt/bin/jq .server.location`
+PING=`echo $SPEED_TEST | /opt/bin/jq .ping.latency`
+DOWN=`echo $SPEED_TEST | /opt/bin/jq .download.bytes`
+UP=`echo $SPEED_TEST | /opt/bin/jq .upload.bytes`
+URL=`echo $SPEED_TEST | /opt/bin/jq .result.url`
 
 #scale bps to Mbps using jq floating point arithmetic (no native bash support for floating point arithmetic)
-DOWN=`jq -n $DOWN/1000/1000`
-UP=`jq -n $UP/1000/1000`
+DOWN=`/opt/bin/jq -n $DOWN/1000/1000`
+UP=`/opt/bin/jq -n $UP/1000/1000`
 
 #apply rounding
 PING=`printf '%.*f\n' 0 $PING`
@@ -44,4 +49,4 @@ echo -e "<html><head><title>Speedtest Log</title><style>html{background:#121212;
 echo $NEW_ROW
 
 #output formatted json to stdout
-echo $SPEED_TEST | jq .
+echo $SPEED_TEST | /opt/bin/jq .
