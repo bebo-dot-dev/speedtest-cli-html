@@ -20,15 +20,15 @@ exec 1>$LOG_FILE 2>&1
 SPEED_TEST=`$SPEED_TEST_CMD`
 
 #json parse the response via jq
-SERVER_NAME=`echo $SPEED_TEST | /opt/bin/jq .server.location`
-PING=`echo $SPEED_TEST | /opt/bin/jq .ping.latency`
-DOWN=`echo $SPEED_TEST | /opt/bin/jq .download.bytes`
-UP=`echo $SPEED_TEST | /opt/bin/jq .upload.bytes`
-URL=`echo $SPEED_TEST | /opt/bin/jq .result.url`
+SERVER_NAME=$(echo "$SPEED_TEST" | /opt/bin/jq -r '.server.location')
+PING=$(echo "$SPEED_TEST" | /opt/bin/jq '.ping.latency')
+DOWN_BW=$(echo "$SPEED_TEST" | /opt/bin/jq '.download.bandwidth')
+UP_BW=$(echo "$SPEED_TEST" | /opt/bin/jq '.upload.bandwidth')
+URL=$(echo "$SPEED_TEST" | /opt/bin/jq -r '.result.url')
 
-#scale bps to Mbps using jq floating point arithmetic (no native bash support for floating point arithmetic)
-DOWN=`/opt/bin/jq -n $DOWN/1000/1000`
-UP=`/opt/bin/jq -n $UP/1000/1000`
+# Convert bandwidth (bytes/s) -> Mbps
+DOWN=$(echo "$DOWN_BW" | /opt/bin/jq '. * 8 / 1000000')
+UP=$(echo "$UP_BW"   | /opt/bin/jq '. * 8 / 1000000')
 
 #apply rounding
 PING=`printf '%.*f\n' 0 $PING`
