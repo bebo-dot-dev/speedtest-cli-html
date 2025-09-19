@@ -20,7 +20,7 @@ exec 1>$LOG_FILE 2>&1
 SPEED_TEST=`$SPEED_TEST_CMD`
 
 #json parse the response via jq
-SERVER_NAME=$(echo "$SPEED_TEST" | /opt/bin/jq -r '.server.location')
+HOST=$(echo "$SPEED_TEST" | /opt/bin/jq -r '.server.host')
 PING=$(echo "$SPEED_TEST" | /opt/bin/jq '.ping.latency')
 DOWN_BW=$(echo "$SPEED_TEST" | /opt/bin/jq '.download.bandwidth')
 UP_BW=$(echo "$SPEED_TEST" | /opt/bin/jq '.upload.bandwidth')
@@ -36,15 +36,15 @@ DOWN=`printf '%.*f\n' 2 $DOWN`
 UP=`printf '%.*f\n' 2 $UP`
 
 #strip quotes from strings
-SERVER_NAME=`echo $SERVER_NAME | tr -d '"'`
-URL=`echo $URL | tr -d '"'`
+#HOST=`echo $HOST | tr -d '"'`
+#URL=`echo $URL | tr -d '"'`
 
 #replace line #1 in the file with the new <tr/> content
-NEW_ROW="<tr onclick=\"window.open('$URL','_blank')\" style=\"cursor:pointer\"><td>$(date '+%d/%m/%Y %T')</td><td>$SERVER_NAME</td><td>$PING ms</td><td>$DOWN Mbps down&nbsp;/&nbsp;$UP Mbps up</td></tr>"
+NEW_ROW="<tr onclick=\"window.open('$URL','_blank')\" style=\"cursor:pointer\"><td>$(date '+%d/%m/%Y %T')</td><td>$HOST</td><td>$PING ms</td><td>$DOWN Mbps</td><td>$UP Mbps</td></tr>"
 sed -i "1c${NEW_ROW}" $OUT_FILE
 
 #insert a new line #1
-echo -e "<html><head><title>Speedtest Log</title><style>html{background:#121212;color:#FFFFFF;}table{width:100%;border-collapse:collapse;font-family:Verdana,Geneva,Tahoma,sans-serif;}table thead{font-weight:bold;}table td{padding:10px;border:#4E95F4 1px solid}</style></head><body><table><thead><tr><td>Timestamp</td><td>Server</td><td>Ping</td><td>Speed</td></tr></thead><tbody>\n$(cat $OUT_FILE)" > $OUT_FILE
+echo -e "<html><head><title>Speedtest Log</title><style>html{background:#121212;color:#FFFFFF;}table{width:100%;border-collapse:collapse;font-family:Verdana,Geneva,Tahoma,sans-serif;}table thead{font-weight:bold;}table td{padding:10px;border:#4E95F4 1px solid}</style></head><body><table><thead><tr><td>Timestamp</td><td>Host</td><td>Ping</td><td>Down</td><td>Up</td></tr></thead><tbody>\n$(cat $OUT_FILE)" > $OUT_FILE
 
 echo $NEW_ROW
 

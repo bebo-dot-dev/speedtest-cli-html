@@ -1,7 +1,13 @@
 # speedtest-cli-html
-maintains a speedtest html log file from ookla speedtest cli json output
 
-### dependencies: 
+Maintains a speedtest html log file from ookla speedtest cli json output
+
+* most recent speed test at the table output top
+* logs process output to `log-speedtest.log`
+* log rotate maintained html files keeping last 5
+
+### Dependencies: 
+
 * ookla speedtest cli for performing speed tests via speedtest.net (https://www.speedtest.net/apps/cli)
 * jq for command line json parsing (https://stedolan.github.io/jq/)
 
